@@ -1,4 +1,5 @@
 import pygame
+import PyphyObject
 import sys
 from pygame.locals import *
 
@@ -19,6 +20,7 @@ clock = pygame.time.Clock()
 myimage = pygame.image.load("cur.png")
 imagerect : pygame.Rect = myimage.get_rect()
 
+po = PyphyObject.Object(myimage)
 imageWidth = 0
 imageHeight = 0
 timedelta = 0
