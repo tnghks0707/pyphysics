@@ -31,7 +31,7 @@ timedelta = 0
 F = -9.8
 m = 1.0
 a = F / m
-v = 0.0
+deltaA = 0.0
 distence = 0.0
 timecontinue = 0.0
 
@@ -43,10 +43,14 @@ while True:
     
     #물리엔진 시작
     
+    #시간 변화량을 초 단위로 환산
     timedelta_f = timedelta / 1000
-    v += -a * timedelta_f
-    distence += (v * timedelta_f) / 2
+    #지속시간에 더함
+    timecontinue += timedelta_f
 
+    deltaA += a * timedelta_f
+    distence -= deltaA * timedelta_f
+    
     distence_pixel = distence * 100
 
     imageHeight = distence_pixel
