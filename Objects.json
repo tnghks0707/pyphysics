@@ -1,0 +1,12 @@
+{
+    "PyphyVersion" : 1,
+    "Objects" : [
+        {
+            "Name" : "Wind",
+            "Location" : [0, 0],
+	    "size":[0, 0],`
+            "Rigidbody" : true,
+            "Image" : "cur.png"
+        }
+    ]
+}

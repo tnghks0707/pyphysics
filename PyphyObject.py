@@ -1,16 +1,18 @@
 import pygame
-import ctypes
 
 class Object:
+    Name: str
     Surface: pygame.Surface
     Rect: pygame.Rect
     rigidbody = None
 
-    def __init__(self, Isurface, rect=None):
+    def __init__(self, Isurface, rect=None, name=None):
         self.Surface = Isurface
         self.Rect = self.Surface.get_rect()
         if rect != None:
             self.Rect = rect
+        if name != None:
+            self.Name = name
     
     def SetRigidbody(self, mass):
         self.rigidbody = Rigidbody(self.Rect, mass)
@@ -65,7 +67,7 @@ class Vector:
     HeightF = 0.0
     WidthF = 0.0
     
-    def __init__(self, HeightF, WidthF):
+    def __init__(self, WidthF, HeightF):
         self.HeightF = HeightF
         self.WidthF = WidthF
 
