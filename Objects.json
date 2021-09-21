@@ -1,12 +1,26 @@
 {
-    "PyphyVersion" : 1,
+    "PyphyVersion" : 0.1,
     "Objects" : [
         {
             "Name" : "Wind",
+            "Location" : [200, 200],
+	        "Size":[640, 480],
+            "Rigidbody" : {
+                "Mass" : 1
+            },
+            "Image" : "cur.png",
+            "Visible" : true
+        },
+
+        {
+            "Name" : "Sun",
             "Location" : [0, 0],
-	    "size":[0, 0],`
-            "Rigidbody" : true,
-            "Image" : "cur.png"
+	        "Size":[320, 240],
+            "Rigidbody" : {
+                "Mass" : 1
+            },
+            "Image" : "cur2.png",
+            "Visible" : true
         }
     ]
 }
