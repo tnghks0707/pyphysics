@@ -6,8 +6,9 @@ class Object:
     Rect: pygame.Rect
     rigidbody = None
     Visible = True
+    Type = None
 
-    def __init__(self, Isurface, rect=None, name=None, size=None, visible=True):
+    def __init__(self, Isurface, rect=None, name=None, size=None, visible=True, Type=None):
         self.Surface = Isurface
         self.Visible = visible
         if rect != None:
@@ -18,6 +19,10 @@ class Object:
             self.Name = name
         if size != None:
             self.Surface = pygame.transform.smoothscale(self.Surface, size)
+            self.Rect.size = size
+            #self.Rect = self.Surface.get_rect()
+        if Type != None:
+            self.Type = Type
     
     def SetRigidbody(self, mass):
         self.rigidbody = Rigidbody(self.Rect, mass)
@@ -34,14 +39,15 @@ class Object:
 class Rigidbody:
     Rect = None
     Mass = 0.0
+
     HeightF = 0.0
     HeightA = 0.0
     HeightDeltaA = 0.0
-
     HeightDistence = 0.0
-
-    HeightF_lasttime = 0
     
+    WidthF = 0.0
+    WidthA = 0.0
+    WidthDeltaA = 0.0
     WidthDistence = 0.0
 
     def __init__(self, Rect: pygame.Rect, mass):
@@ -50,12 +56,32 @@ class Rigidbody:
         (self.WidthDistence, self.HeightDistence) = Rect.topleft
         pass
 
+    def SetSpeed(self, vector):
+        self.HeightDeltaA = vector.getHeightF()
+        self.WidthDeltaA = vector.getWidthF()
+
     def AddForce(self, vector):
         self.HeightF += vector.getHeightF()
+        self.WidthF += vector.getWidthF()
+
+    def AddWidthMomentum(self, p):#p = mv v = p/m
+        self.SetSpeed(Vector(p / self.Mess, 0))
+
+    def AddHeightMomentum(self, p):
+        self.SetSpeed(Vector(0, p / self.Mess))
+
+    def GetWidthMomentum(self):
+        return self.Mess * self.WidthDeltaA * -1
+
+    def GetHeightMomentum(self):
+        return self.Mess * self.HeightDeltaA
 
     def Calculate(self, timeDelta):
         self.HeightA = self.HeightF / self.Mess
         self.HeightF = 0
+
+        self.WidthA = self.WidthF / self.Mess
+        self.WidthF = 0
 
         timedelta_f = timeDelta / 1000
         #지속시간에 더함
@@ -64,12 +90,24 @@ class Rigidbody:
         self.HeightDeltaA += self.HeightA * timedelta_f
         self.HeightDistence -= self.HeightDeltaA * timedelta_f * 100
 
+        self.WidthDeltaA += self.WidthA * timedelta_f
+        self.WidthDistence -= self.WidthDeltaA * timedelta_f * 100
+
         self.Rect.topleft = (self.WidthDistence, self.HeightDistence)
 
-        print(self.HeightDeltaA)
+        #print(self.HeightDeltaA)
 
-        if(self.HeightDistence > 1500):
-            self.HeightDistence = -10.0
+        if(self.HeightDistence > 1000):
+            self.HeightDistence = -500
+
+        if(self.HeightDistence < -1000):
+            self.HeightDistence = 900
+
+        if(self.WidthDistence > 1400):
+            self.WidthDistence = -500
+
+        if(self.WidthDistence < -500):
+            self.WidthDistence = 1300
 
 
 
@@ -79,7 +117,10 @@ class Vector:
     
     def __init__(self, WidthF, HeightF):
         self.HeightF = HeightF
-        self.WidthF = WidthF
+        self.WidthF = WidthF * -1
 
     def getHeightF(self):
         return self.HeightF
+
+    def getWidthF(self):
+        return self.WidthF

@@ -3,10 +3,10 @@
     "Objects" : [
         {
             "Name" : "Wind",
-            "Location" : [200, 200],
-	        "Size":[640, 480],
+            "Location" : [0, 0],
+	        "Size":[320, 240],
             "Rigidbody" : {
-                "Mass" : 1
+                "Mess" : 1
             },
             "Image" : "cur.png",
             "Visible" : true
@@ -14,13 +14,22 @@
 
         {
             "Name" : "Sun",
-            "Location" : [0, 0],
+            "Location" : [530, 260],
 	        "Size":[320, 240],
             "Rigidbody" : {
-                "Mass" : 1
+                "Mess" : 1
             },
             "Image" : "cur2.png",
             "Visible" : true
         }
-    ]
+    ],
+    "others" :
+    {
+        "Name" : "Floor",
+        "Type" : "Ground",
+        "Location" : [0, 550],
+        "Size":[1759, 221],
+        "Image" : "floor.png",
+        "Visible" : true
+    }
 }
