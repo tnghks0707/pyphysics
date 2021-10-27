@@ -1,5 +1,6 @@
 import pygame
 import PyphyObject
+import PyphyTypes
 import sys
 import json
 from pygame.locals import *
@@ -19,6 +20,10 @@ def BuildObjects():
         size_width = size[1]
         image = i["Image"]
         visible = i["Visible"]
+ 
+        type = None
+        if "Type" in i:
+            type = i["Type"]
 
         rigidbody = None
         if "Rigidbody" in i:
@@ -27,7 +32,7 @@ def BuildObjects():
         image = pygame.image.load(image)
         rect : pygame.Rect = image.get_rect()
         rect.topleft = (location[0], location[1])
-        newObject = PyphyObject.Object(image, rect=rect, name=name, size=(size_height, size_width), visible=visible)
+        newObject = PyphyObject.Object(image, rect=rect, name=name, size=(size_height, size_width), visible=visible, Type=type)
         if rigidbody != None:
             newObject.SetRigidbody(rigidbody["Mess"])
 
@@ -39,10 +44,10 @@ def BuildObjects():
 def main():
     BuildObjects()
 
-    #width = 800
-    #height = 450
     width = 1280
     height = 720
+    #width = 1280
+    #height = 720
     white = (255, 255, 255)
     black = (0, 0, 0)
     fps = 60
@@ -85,9 +90,6 @@ def main():
     down = False
     stop = False
 
-    lastp = 0
-    lastdddd = False
-
     while True:
         loopchecker += 1
         timedelta = clock.tick(fps)
@@ -124,10 +126,11 @@ def main():
 
         for Object in ObjectList:
             if Object.rigidbody != None:
-                Object.rigidbody.Calculate(timedelta)
+                Object.rigidbody.AddForce(PyphyObject.Vector(0, -10))
+
             ObjectRect = Object.Rect
             #충돌 처리(테스트)
-            
+            #일단은 성공!
                         
             #Object.rigidbody.AddForce(PyphyObject.Vector(10, 0))
             if Object.Name == "Wind":
@@ -136,52 +139,69 @@ def main():
                 elif right:
                     Object.rigidbody.AddForce(PyphyObject.Vector(5, 0))
                 elif up:
-                    Object.rigidbody.AddForce(PyphyObject.Vector(0, 5))
+                    Object.rigidbody.AddForce(PyphyObject.Vector(0, 25))
                 elif down:
                     Object.rigidbody.AddForce(PyphyObject.Vector(0, -5))
                 elif stop:
                     stop = False
                     Object.rigidbody.SetSpeed(PyphyObject.Vector(0, 0))
 
-                
-
-                for Object2 in ObjectList:
-                    Object2Rect: pygame.Rect = Object2.Rect
-                    if Object != Object2 and ObjectRect.colliderect(Object2Rect):
-                        Object2WidthLength = Object2Rect.size[0] / 2
-                        Object2HeightLength = Object2Rect.size[1] / 2
-                        if Object2WidthLength - 8 <= ObjectRect.midleft[0] - Object2Rect.center[0] + 1 <= Object2WidthLength:
+            
+            for Object2 in ObjectList:
+                Object2Rect: pygame.Rect = Object2.Rect
+                if Object != Object2 and Object.Type != PyphyTypes.Ground and Object2.Type != PyphyTypes.Ground and ObjectRect.colliderect(Object2Rect):
+                    print(Object.Name + "이(가) " + Object2.Name + "와 충돌함")
+                    Object2WidthLength = Object2Rect.size[0] / 2
+                    Object2HeightLength = Object2Rect.size[1] / 2
+                    ocw = round(Object2WidthLength * (3 / 10))
+                    och = round(Object2HeightLength * (3 / 10))
+                    if Object2WidthLength - ocw <= ObjectRect.midleft[0] - Object2Rect.center[0] + 1 <= Object2WidthLength:
                             #left
-                            p1 = Object.rigidbody.GetWidthMomentum()
-                            p2 = Object2.rigidbody.GetWidthMomentum()
-                            if p1 <= 0:
-                                Object2.rigidbody.AddWidthMomentum(p1)
-                            Object.rigidbody.AddWidthMomentum(p2)
+                        p1 = Object.rigidbody.GetWidthMomentum()
+                        p2 = Object2.rigidbody.GetWidthMomentum()
+                        Object2.rigidbody.AddWidthMomentum(p1)
+                        Object.rigidbody.AddWidthMomentum(p2)
 
-                        if Object2WidthLength - 8 <= Object2Rect.center[0] - ObjectRect.midright[0] + 1 <= Object2WidthLength:
+                    elif Object2WidthLength - ocw <= Object2Rect.center[0] - ObjectRect.midright[0] + 1 <= Object2WidthLength:
                             #right
-                            p1 = Object.rigidbody.GetWidthMomentum()
-                            p2 = Object2.rigidbody.GetWidthMomentum()
-                            if p1 >= 0:
-                                Object2.rigidbody.AddWidthMomentum(p1)
-                            Object.rigidbody.AddWidthMomentum(p2)
+                        p1 = Object.rigidbody.GetWidthMomentum()
+                        p2 = Object2.rigidbody.GetWidthMomentum()
+                        Object2.rigidbody.AddWidthMomentum(p1)
+                        Object.rigidbody.AddWidthMomentum(p2)
 
-                        if Object2HeightLength - 8 <= ObjectRect.midtop[1] - Object2Rect.center[1] + 1 <= Object2HeightLength:
+                    elif Object2HeightLength - och <= ObjectRect.midtop[1] - Object2Rect.center[1] + 1 <= Object2HeightLength:
                             #top
-                            p1 = Object.rigidbody.GetHeightMomentum()
-                            p2 = Object2.rigidbody.GetHeightMomentum()
-                            if p1 >= 0:
-                                Object2.rigidbody.AddHeightMomentum(p1)
-                            Object.rigidbody.AddHeightMomentum(p2)
+                        p1 = Object.rigidbody.GetHeightMomentum()
+                        p2 = Object2.rigidbody.GetHeightMomentum()
+                        Object2.rigidbody.AddHeightMomentum(p1)
+                        Object.rigidbody.AddHeightMomentum(p2)
 
-                        if Object2HeightLength - 8 <= Object2Rect.center[1] - ObjectRect.midbottom[1] + 1 <= Object2HeightLength:
+                    elif Object2HeightLength - och <= Object2Rect.center[1] - ObjectRect.midbottom[1] + 1 <= Object2HeightLength:
                             #bottom
-                            p1 = Object.rigidbody.GetHeightMomentum()
-                            p2 = Object2.rigidbody.GetHeightMomentum()
-                            if p1 <= 0:
-                                Object2.rigidbody.AddHeightMomentum(p1)
-                            Object.rigidbody.AddHeightMomentum(p2)
+                        p1 = Object.rigidbody.GetHeightMomentum()
+                        p2 = Object2.rigidbody.GetHeightMomentum()
+                        Object2.rigidbody.AddHeightMomentum(p1)
+                        Object.rigidbody.AddHeightMomentum(p2)
 
+            if Object.Type != PyphyTypes.Ground:
+                for Grounds in ObjectList:
+                    if Grounds.Type != PyphyTypes.Ground:
+                        continue
+
+                    GroundRect: pygame.Rect = Grounds.Rect
+                    if Grounds != Object and ObjectRect.colliderect(GroundRect):
+                        
+                        GroundHeightLength = GroundRect.size[1] / 2
+                        och = round(GroundHeightLength * (3 / 10))
+
+                        if GroundHeightLength - och <= GroundRect.center[1] - ObjectRect.midbottom[1] + 1 <= GroundHeightLength:
+                            #top
+                            Object.rigidbody.HeightDeltaA = 0
+                            Object.rigidbody.HeightA = 0
+                            Object.rigidbody.HeightDistence = GroundRect.midtop[1] - ObjectRect.size[1] + 1
+
+            if Object.rigidbody != None:
+                Object.rigidbody.Calculate(timedelta)
 
             Object.Render(displaysurf)
 

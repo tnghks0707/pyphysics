@@ -1,4 +1,5 @@
 import pygame
+import PyphyTypes
 
 class Object:
     Name: str
@@ -22,7 +23,7 @@ class Object:
             self.Rect.size = size
             #self.Rect = self.Surface.get_rect()
         if Type != None:
-            self.Type = Type
+            self.Type = PyphyTypes.toClass(Type)
     
     def SetRigidbody(self, mass):
         self.rigidbody = Rigidbody(self.Rect, mass)
@@ -56,7 +57,7 @@ class Rigidbody:
         (self.WidthDistence, self.HeightDistence) = Rect.topleft
         pass
 
-    def SetSpeed(self, vector):
+    def SetSpeed(self, vector):    
         self.HeightDeltaA = vector.getHeightF()
         self.WidthDeltaA = vector.getWidthF()
 
@@ -65,10 +66,10 @@ class Rigidbody:
         self.WidthF += vector.getWidthF()
 
     def AddWidthMomentum(self, p):#p = mv v = p/m
-        self.SetSpeed(Vector(p / self.Mess, 0))
+        self.WidthDeltaA = p / self.Mess * -1
 
     def AddHeightMomentum(self, p):
-        self.SetSpeed(Vector(0, p / self.Mess))
+        self.HeightDeltaA = p / self.Mess
 
     def GetWidthMomentum(self):
         return self.Mess * self.WidthDeltaA * -1

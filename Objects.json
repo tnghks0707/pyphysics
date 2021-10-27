@@ -4,7 +4,7 @@
         {
             "Name" : "Wind",
             "Location" : [0, 0],
-	        "Size":[320, 240],
+	        "Size":[160, 120],
             "Rigidbody" : {
                 "Mess" : 1
             },
@@ -15,21 +15,21 @@
         {
             "Name" : "Sun",
             "Location" : [530, 260],
-	        "Size":[320, 240],
+	        "Size":[160, 120],
             "Rigidbody" : {
                 "Mess" : 1
             },
             "Image" : "cur2.png",
             "Visible" : true
+        },
+        
+        {
+            "Name" : "Floor",
+            "Type" : "Ground",
+            "Location" : [0, 620],
+            "Size":[1759, 221],
+            "Image" : "floor.png",
+            "Visible" : true
         }
-    ],
-    "others" :
-    {
-        "Name" : "Floor",
-        "Type" : "Ground",
-        "Location" : [0, 550],
-        "Size":[1759, 221],
-        "Image" : "floor.png",
-        "Visible" : true
-    }
+    ]
 }
