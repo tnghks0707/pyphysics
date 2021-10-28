@@ -3,7 +3,7 @@
     "Objects" : [
         {
             "Name" : "Wind",
-            "Location" : [0, 0],
+            "Location" : [500, 200],
 	        "Size":[160, 120],
             "Rigidbody" : {
                 "Mess" : 1
@@ -14,7 +14,7 @@
 
         {
             "Name" : "Sun",
-            "Location" : [530, 260],
+            "Location" : [530, 460],
 	        "Size":[160, 120],
             "Rigidbody" : {
                 "Mess" : 1
@@ -26,9 +26,14 @@
         {
             "Name" : "Floor",
             "Type" : "Ground",
-            "Location" : [0, 620],
+            "Location" : [0, 650],
             "Size":[1759, 221],
             "Image" : "floor.png",
+            "Rigidbody" : {
+                "Mess" : 1,
+                "freeze_x" : true,
+                "freeze_y" : true
+            },
             "Visible" : true
         }
     ]

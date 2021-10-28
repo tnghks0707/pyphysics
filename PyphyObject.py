@@ -7,9 +7,8 @@ class Object:
     Rect: pygame.Rect
     rigidbody = None
     Visible = True
-    Type = None
 
-    def __init__(self, Isurface, rect=None, name=None, size=None, visible=True, Type=None):
+    def __init__(self, Isurface, rect=None, name=None, size=None, visible=True):
         self.Surface = Isurface
         self.Visible = visible
         if rect != None:
@@ -22,11 +21,12 @@ class Object:
             self.Surface = pygame.transform.smoothscale(self.Surface, size)
             self.Rect.size = size
             #self.Rect = self.Surface.get_rect()
-        if Type != None:
-            self.Type = PyphyTypes.toClass(Type)
+        
     
-    def SetRigidbody(self, mass):
+    def SetRigidbody(self, mass, Fz_x = False, Fz_y = False):
         self.rigidbody = Rigidbody(self.Rect, mass)
+        self.rigidbody.freeze_x = Fz_x
+        self.rigidbody.freeze_y = Fz_y
 
     def TransformScale(self, size):
         self.Surface = pygame.transform.smoothscale(self.Surface, size)
@@ -50,26 +50,36 @@ class Rigidbody:
     WidthA = 0.0
     WidthDeltaA = 0.0
     WidthDistence = 0.0
+    
+    freeze_x = False
+    freeze_y = False
 
-    def __init__(self, Rect: pygame.Rect, mass):
+    def __init__(self, Rect: pygame.Rect, mass, Fz_x = False, Fz_y = False):
         self.Rect = Rect
         self.Mess = mass
         (self.WidthDistence, self.HeightDistence) = Rect.topleft
-        pass
+        self.freeze_x = Fz_x
+        self.freeze_y = Fz_y
 
-    def SetSpeed(self, vector):    
-        self.HeightDeltaA = vector.getHeightF()
-        self.WidthDeltaA = vector.getWidthF()
+    def SetSpeed(self, vector):
+        if self.freeze_x == False:
+            self.WidthDeltaA = vector.getWidthF()
+        if self.freeze_y == False:
+            self.HeightDeltaA = vector.getHeightF()
 
     def AddForce(self, vector):
-        self.HeightF += vector.getHeightF()
-        self.WidthF += vector.getWidthF()
+        if self.freeze_x == False:
+            self.WidthF += vector.getWidthF()
+        if self.freeze_y == False:
+            self.HeightF += vector.getHeightF()
 
     def AddWidthMomentum(self, p):#p = mv v = p/m
-        self.WidthDeltaA = p / self.Mess * -1
+        if self.freeze_x == False:
+            self.WidthDeltaA = p / self.Mess * -1
 
     def AddHeightMomentum(self, p):
-        self.HeightDeltaA = p / self.Mess
+        if self.freeze_y == False:
+            self.HeightDeltaA = p / self.Mess
 
     def GetWidthMomentum(self):
         return self.Mess * self.WidthDeltaA * -1

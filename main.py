@@ -21,20 +21,23 @@ def BuildObjects():
         image = i["Image"]
         visible = i["Visible"]
  
-        type = None
-        if "Type" in i:
-            type = i["Type"]
+        freeze_x = False
+        freeze_y = False
 
         rigidbody = None
         if "Rigidbody" in i:
             rigidbody = i["Rigidbody"]
+            if "freeze_x" in rigidbody:
+                freeze_x = rigidbody["freeze_x"]
+            if "freeze_y" in rigidbody:
+                freeze_y = rigidbody["freeze_y"]
 
         image = pygame.image.load(image)
         rect : pygame.Rect = image.get_rect()
         rect.topleft = (location[0], location[1])
-        newObject = PyphyObject.Object(image, rect=rect, name=name, size=(size_height, size_width), visible=visible, Type=type)
+        newObject = PyphyObject.Object(image, rect=rect, name=name, size=(size_height, size_width), visible=visible)
         if rigidbody != None:
-            newObject.SetRigidbody(rigidbody["Mess"])
+            newObject.SetRigidbody(rigidbody["Mess"], Fz_x = freeze_x, Fz_y = freeze_y)
 
         #newObject.rigidbody.AddForce(PyphyObject.Vector(0, -1000))
         #newObject.rigidbody.SetSpeed(PyphyObject.Vector(0, -1))
@@ -44,9 +47,9 @@ def BuildObjects():
 def main():
     BuildObjects()
 
-    width = 1280
+    #width = 200
     height = 720
-    #width = 1280
+    width = 1280
     #height = 720
     white = (255, 255, 255)
     black = (0, 0, 0)
@@ -91,6 +94,7 @@ def main():
     stop = False
 
     while True:
+
         loopchecker += 1
         timedelta = clock.tick(fps)
         #print("frame : " + str(clock.get_fps()))
@@ -124,7 +128,8 @@ def main():
 
         Object: PyphyObject.Object
 
-        for Object in ObjectList:
+        for Object_i in range(0, len(ObjectList)):
+            Object = ObjectList[Object_i]
             if Object.rigidbody != None:
                 Object.rigidbody.AddForce(PyphyObject.Vector(0, -10))
 
@@ -147,42 +152,89 @@ def main():
                     Object.rigidbody.SetSpeed(PyphyObject.Vector(0, 0))
 
             
-            for Object2 in ObjectList:
+            for Object2 in ObjectList[Object_i + 1:]:
                 Object2Rect: pygame.Rect = Object2.Rect
-                if Object != Object2 and Object.Type != PyphyTypes.Ground and Object2.Type != PyphyTypes.Ground and ObjectRect.colliderect(Object2Rect):
-                    print(Object.Name + "이(가) " + Object2.Name + "와 충돌함")
+                if Object != Object2 and ObjectRect.colliderect(Object2Rect):
+                    #print(Object.Name + "이(가) " + Object2.Name + "와 충돌함")
                     Object2WidthLength = Object2Rect.size[0] / 2
                     Object2HeightLength = Object2Rect.size[1] / 2
                     ocw = round(Object2WidthLength * (3 / 10))
+                    if ocw > 30:
+                        ocw = 30
                     och = round(Object2HeightLength * (3 / 10))
-                    if Object2WidthLength - ocw <= ObjectRect.midleft[0] - Object2Rect.center[0] + 1 <= Object2WidthLength:
-                            #left
+                    if och > 30:
+                        och = 30
+                    
+                    if ((Object2Rect.midtop[1] < ObjectRect.midtop[1] - 1 < Object2Rect.midbottom[1] 
+                        or Object2Rect.midtop[1] < ObjectRect.midbottom[1] - 1 < Object2Rect.midbottom[1]) 
+                        and Object2Rect.midright[0] - ocw < ObjectRect.midleft[0]):
+                        #left
+                        if(Object.rigidbody.freeze_x == False):
+                            Object.rigidbody.WidthDistence = Object2Rect.midright[0]
+                        
                         p1 = Object.rigidbody.GetWidthMomentum()
                         p2 = Object2.rigidbody.GetWidthMomentum()
                         Object2.rigidbody.AddWidthMomentum(p1)
                         Object.rigidbody.AddWidthMomentum(p2)
 
-                    elif Object2WidthLength - ocw <= Object2Rect.center[0] - ObjectRect.midright[0] + 1 <= Object2WidthLength:
-                            #right
+                    if ((Object2Rect.midtop[1] < ObjectRect.midtop[1] - 1 < Object2Rect.midbottom[1] 
+                        or Object2Rect.midtop[1] < ObjectRect.midbottom[1] - 1 < Object2Rect.midbottom[1]) 
+                        and Object2Rect.midleft[0] + ocw > ObjectRect.midright[0]):
+                        #right
+                        if(Object.rigidbody.freeze_x == False):
+                            Object.rigidbody.WidthDistence = Object2Rect.midleft[0] - ObjectRect.size[0] + 0.9
+
                         p1 = Object.rigidbody.GetWidthMomentum()
                         p2 = Object2.rigidbody.GetWidthMomentum()
                         Object2.rigidbody.AddWidthMomentum(p1)
                         Object.rigidbody.AddWidthMomentum(p2)
 
-                    elif Object2HeightLength - och <= ObjectRect.midtop[1] - Object2Rect.center[1] + 1 <= Object2HeightLength:
-                            #top
+                    if ((Object2Rect.midleft[0] < ObjectRect.midleft[0] < Object2Rect.midright[0]
+                        or Object2Rect.midleft[0] < ObjectRect.midright[0] < Object2Rect.midright[0])
+                        and Object2Rect.midbottom[1] - och < ObjectRect.midtop[1]):
+                        #top
+                        if(Object.rigidbody.freeze_y == False):
+                            Object.rigidbody.HeightDistence = Object2Rect.midbottom[1]
+
                         p1 = Object.rigidbody.GetHeightMomentum()
                         p2 = Object2.rigidbody.GetHeightMomentum()
                         Object2.rigidbody.AddHeightMomentum(p1)
                         Object.rigidbody.AddHeightMomentum(p2)
+
+                    if ((Object2Rect.midleft[0] < ObjectRect.midleft[0] < Object2Rect.midright[0]
+                        or Object2Rect.midleft[0] < ObjectRect.midright[0] < Object2Rect.midright[0])
+                        and Object2Rect.midtop[1] + och > ObjectRect.midbottom[1]):
+                        #bottom
+                        if(Object.rigidbody.freeze_y == False):
+                            Object.rigidbody.HeightDistence = Object2Rect.midtop[1] - ObjectRect.size[1] + 1
+
+                        p1 = Object.rigidbody.GetHeightMomentum()
+                        p2 = Object2.rigidbody.GetHeightMomentum()
+                        Object2.rigidbody.AddHeightMomentum(p1)
+                        Object.rigidbody.AddHeightMomentum(p2)
+                        #Object.rigidbody.HeightDistence = Object2Rect.midtop[1] -ObjectRect.size[1] + 1
+
+
+                    """
+                    elif Object2HeightLength - och <= ObjectRect.midtop[1] - Object2Rect.center[1] + 1 <= Object2HeightLength:
+                        #top
+                        p1 = Object.rigidbody.GetHeightMomentum()
+                        p2 = Object2.rigidbody.GetHeightMomentum()
+                        Object2.rigidbody.AddHeightMomentum(p1)
+                        Object.rigidbody.AddHeightMomentum(p2)
+                        print("top")
+                        #Object.rigidbody.HeightDistence = Object2Rect.midtop[1] -ObjectRect.size[1] + 1
 
                     elif Object2HeightLength - och <= Object2Rect.center[1] - ObjectRect.midbottom[1] + 1 <= Object2HeightLength:
-                            #bottom
+                        #bottom
                         p1 = Object.rigidbody.GetHeightMomentum()
                         p2 = Object2.rigidbody.GetHeightMomentum()
                         Object2.rigidbody.AddHeightMomentum(p1)
                         Object.rigidbody.AddHeightMomentum(p2)
-
+                        print("bottom")
+                    """
+            
+            """
             if Object.Type != PyphyTypes.Ground:
                 for Grounds in ObjectList:
                     if Grounds.Type != PyphyTypes.Ground:
@@ -199,7 +251,7 @@ def main():
                             Object.rigidbody.HeightDeltaA = 0
                             Object.rigidbody.HeightA = 0
                             Object.rigidbody.HeightDistence = GroundRect.midtop[1] - ObjectRect.size[1] + 1
-
+            """
             if Object.rigidbody != None:
                 Object.rigidbody.Calculate(timedelta)
 
