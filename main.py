@@ -32,10 +32,15 @@ def BuildObjects():
             if "freeze_y" in rigidbody:
                 freeze_y = rigidbody["freeze_y"]
 
+        UserScript = None
+        if "UserScript" in i:
+            UserScript = i["UserScript"]
+
         image = pygame.image.load(image)
         rect : pygame.Rect = image.get_rect()
         rect.topleft = (location[0], location[1])
-        newObject = PyphyObject.Object(image, rect=rect, name=name, size=(size_height, size_width), visible=visible)
+        newObject = PyphyObject.Object(image, rect=rect, name=name, size=(size_height, size_width), visible=visible,
+        UserScript = UserScript)
         if rigidbody != None:
             newObject.SetRigidbody(rigidbody["Mess"], Fz_x = freeze_x, Fz_y = freeze_y)
 
@@ -87,22 +92,18 @@ def main():
 
     loopchecker = 0
 
-    left = False
-    right = False
-    up = False
-    down = False
-    stop = False
-
     while True:
-
         loopchecker += 1
         timedelta = clock.tick(fps)
         #print("frame : " + str(clock.get_fps()))
 
+        
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
-                sys.exit()
+                exit()
+            pygame.event.post(event)
+            """
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     left = True
@@ -123,6 +124,8 @@ def main():
                     up = False
                 elif event.key == pygame.K_DOWN:
                     down = False
+        """
+        
 
         displaysurf.fill(black)
 
@@ -130,6 +133,16 @@ def main():
 
         for Object_i in range(0, len(ObjectList)):
             Object = ObjectList[Object_i]
+
+            if Object.UserScriptEnable:
+                try:
+                    Object.UserScript.Update(Object, pygame)
+                except Exception as e:
+                    print(Object.Name + " : Error executing user script \"" + Object.UserScriptPath + "\"")
+                    print("--------------------------------------------")
+                    print(e)
+                    exit(-1)
+            
             if Object.rigidbody != None:
                 Object.rigidbody.AddForce(PyphyObject.Vector(0, -10))
 
@@ -138,6 +151,7 @@ def main():
             #일단은 성공!
                         
             #Object.rigidbody.AddForce(PyphyObject.Vector(10, 0))
+            """
             if Object.Name == "Wind":
                 if left:
                     Object.rigidbody.AddForce(PyphyObject.Vector(-5, 0))
@@ -150,6 +164,7 @@ def main():
                 elif stop:
                     stop = False
                     Object.rigidbody.SetSpeed(PyphyObject.Vector(0, 0))
+            """
 
             
             for Object2 in ObjectList[Object_i + 1:]:
@@ -182,7 +197,7 @@ def main():
                         and Object2Rect.midleft[0] + ocw > ObjectRect.midright[0]):
                         #right
                         if(Object.rigidbody.freeze_x == False):
-                            Object.rigidbody.WidthDistence = Object2Rect.midleft[0] - ObjectRect.size[0] + 0.9
+                            Object.rigidbody.WidthDistence = Object2Rect.midleft[0] - ObjectRect.size[0] + 1
 
                         p1 = Object.rigidbody.GetWidthMomentum()
                         p2 = Object2.rigidbody.GetWidthMomentum()
@@ -233,6 +248,7 @@ def main():
                         Object.rigidbody.AddHeightMomentum(p2)
                         print("bottom")
                     """
+
             
             """
             if Object.Type != PyphyTypes.Ground:
@@ -252,6 +268,7 @@ def main():
                             Object.rigidbody.HeightA = 0
                             Object.rigidbody.HeightDistence = GroundRect.midtop[1] - ObjectRect.size[1] + 1
             """
+            
             if Object.rigidbody != None:
                 Object.rigidbody.Calculate(timedelta)
 
@@ -264,7 +281,7 @@ def main():
         po.Render(displaysurf)
         """
 
-        pygame.display.update()    
+        pygame.display.flip()    
 
 if __name__ == "__main__":
     main()

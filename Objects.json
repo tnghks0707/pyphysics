@@ -9,7 +9,8 @@
                 "Mess" : 1
             },
             "Image" : "cur.png",
-            "Visible" : true
+            "Visible" : true,
+            "UserScript" : "Test.py"
         },
 
         {
@@ -27,7 +28,7 @@
             "Name" : "Floor",
             "Type" : "Ground",
             "Location" : [0, 650],
-            "Size":[1759, 221],
+            "Size":[2759, 221],
             "Image" : "floor.png",
             "Rigidbody" : {
                 "Mess" : 1,

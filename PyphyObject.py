@@ -1,5 +1,7 @@
 import pygame
 import PyphyTypes
+import importlib
+import os
 
 class Object:
     Name: str
@@ -7,8 +9,11 @@ class Object:
     Rect: pygame.Rect
     rigidbody = None
     Visible = True
+    UserScriptEnable = False
+    UserScript = None
+    UserScriptPath = None
 
-    def __init__(self, Isurface, rect=None, name=None, size=None, visible=True):
+    def __init__(self, Isurface, rect=None, name=None, size=None, visible=True, UserScript: str = None):
         self.Surface = Isurface
         self.Visible = visible
         if rect != None:
@@ -21,8 +26,19 @@ class Object:
             self.Surface = pygame.transform.smoothscale(self.Surface, size)
             self.Rect.size = size
             #self.Rect = self.Surface.get_rect()
+        if UserScript != None:
+            self.UserScriptPath = UserScript
+            UserScript =  os.path.splitext(UserScript)[0]
+            excepted = False
+            try:
+                self.UserScript = importlib.import_module(UserScript)
+            except Exception:
+                excepted = True
+                print(name + " : Error importing user script \"" + UserScript + "\"!")
+            if excepted == False:
+                self.UserScriptEnable = True
         
-    
+
     def SetRigidbody(self, mass, Fz_x = False, Fz_y = False):
         self.rigidbody = Rigidbody(self.Rect, mass)
         self.rigidbody.freeze_x = Fz_x
